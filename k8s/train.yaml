@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: train-deployment
+  labels:
+    type:
+      data-pipeline
+spec:
+  selector:
+    matchLabels:
+      app: train-pipeline
+  replicas: 1
+  template:
+    metadata:
+      name: train-pipeline-tml
+      labels:
+        app: train-pipeline
+    spec:
+      containers:
+      - name: train-pipeline
+        image: jommgoncalves/model_train:v1.0.0
+        env:
+        - name: MLFLOW_S3_ENDPOINT_URL
+          value: http://minio-service:9000/
+        - name: AWS_ACCESS_KEY_ID
+          value: "minioadmin"
+        - name: AWS_SECRET_ACCESS_KEY
+          value: "minioadmin"

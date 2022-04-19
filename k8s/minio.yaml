@@ -1,0 +1,80 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: minio-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minio-deployment
+  labels:
+    type:
+      object-storage
+spec:
+  selector:
+    matchLabels:
+      app: minio
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: minio
+    spec:
+      nodeSelector:
+        "kubernetes.io/os": linux
+      volumes:
+      - name: minio-pvc
+        persistentVolumeClaim:
+          claimName: minio-pvc
+      containers:
+      - name: minio
+        image: minio/minio:RELEASE.2022-04-12T06-55-35Z
+        imagePullPolicy: Always
+        args:
+        - server
+        - --address
+        - :9000
+        - --console-address
+        - :9001
+        - /data
+        volumeMounts:
+        - name: minio-pvc
+          mountPath: "/data"
+        env:
+        - name: MINIO_ACCESS_KEY
+          value: "minioadmin"
+        - name: MINIO_SECRET_KEY
+          value: "minioadmin"
+        ports:
+        - name: api
+          containerPort: 9000
+        - name: console
+          containerPort: 9001
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio-service
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 9000
+    targetPort: 9000
+    protocol: TCP
+    name: api
+  - port: 9001
+    targetPort: 9001
+    protocol: TCP
+    name: console
+  selector:
+    app: minio

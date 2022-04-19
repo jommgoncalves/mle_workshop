@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlflow-deployment
+  labels:
+    type:
+      machine-learning-platform
+spec:
+  selector:
+    matchLabels:
+      app: mlflow-dashboard
+  replicas: 1
+  template:
+    metadata:
+      name: mlflow-dashboard-tml
+      labels:
+        app: mlflow-dashboard
+    spec:
+      containers:
+        - name: mlflow-dashboard
+          image: jommgoncalves/mlflow:v1.0.0
+          args:
+          - --host=0.0.0.0
+          - --port=5000
+          - --backend-store-uri=sqlite:///mlflow.db
+          - --default-artifact-root=s3://mlflow/
+          env:
+          - name: MLFLOW_S3_ENDPOINT_URL
+            value: http://minio-service:9000/
+          - name: AWS_ACCESS_KEY_ID
+            value: "minioadmin"
+          - name: AWS_SECRET_ACCESS_KEY
+            value: "minioadmin"
+          ports:
+            - containerPort: 5000
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mlflow-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: mlflow-dashboard
+  ports:
+    - protocol: TCP
+      port: 7000
+      targetPort: 5000
+
+---
+
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: mlflow-ingress
+#   annotations:
+#     # nginx.ingress.kubernetes.io/rewrite-target: /
+#     # nginx.ingress.kubernetes.il/add-base-url: "true"
+# spec:
+#   # ingressClassName: nginx
+#   # defaultBackend:
+#   #   service:
+#   #     name: mlflow-service
+#   #     port:
+#   #       number: 5000
+#   rules:
+#   - host: mlflow-server.local
+#     http:
+#       paths:
+#       - path: /
+#         pathType: Prefix
+#         backend:
+#           service:
+#             name: mlflow-service
+#             port:
+#               number: 80

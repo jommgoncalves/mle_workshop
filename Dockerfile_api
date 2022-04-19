@@ -1,0 +1,22 @@
+FROM python:3.8-slim
+
+ENV PROJECT_LOCATION /srv/api
+WORKDIR $PROJECT_LOCATION
+
+RUN apt-get update -qq \
+  && apt-get install --no-install-recommends -y \
+    #gfortran \
+    #libopenblas-dev \
+    #liblapack-dev \
+    build-essential
+
+RUN pip install --no-cache-dir --upgrade poetry
+RUN poetry config virtualenvs.create false
+COPY api/pyproject.toml api/poetry.lock $PROJECT_LOCATION
+RUN poetry install --no-dev
+
+COPY api/api.py $PROJECT_LOCATION
+
+EXPOSE 5000
+
+ENTRYPOINT ["gunicorn", "api:app", "--workers", "1", "--preload", "--bind", "0.0.0.0:5000"]

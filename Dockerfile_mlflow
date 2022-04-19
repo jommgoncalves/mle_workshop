@@ -1,0 +1,15 @@
+FROM python:3.10-slim
+
+ARG MLFLOW_VERSION=1.25.1
+
+WORKDIR /mlflow
+
+RUN apt-get update -qq \
+  && apt-get install --no-install-recommends -y \
+    sqlite3
+
+RUN pip install --no-cache-dir mlflow==$MLFLOW_VERSION boto3
+
+EXPOSE 5000
+
+ENTRYPOINT ["mlflow", "server"]

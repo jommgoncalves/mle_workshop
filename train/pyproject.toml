@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "example_mlflow_model"
+version = "1.0.0"
+description = "Example MLFlow Model"
+authors = ["Farfetch"]
+maintainers = ["Farfetch"]
+license = "proprietary"
+repository=""
+homepage=""
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "~3.8"
+cloudpickle = "1.6.0"
+numpy = "1.19.4"
+pandas = "1.1.5"
+scikit-learn = "0.23.2"
+mlflow = "1.25.1"
+boto3 = "1.21.41"
+
+[build-system]
+requires = ["poetry>=1.0"]
+build-backend = "poetry.masonry.api"

@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "api"
+version = "0.1.0"
+description = "api to expose machine learning model"
+authors = ["Farfetch"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+Flask = "2.1.1"
+cloudpickle = "1.6.0"
+numpy = "1.19.4"
+pandas = "1.1.5"
+scikit-learn = "0.23.2"
+mlflow = "1.25.1"
+boto3 = "1.21.41"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
